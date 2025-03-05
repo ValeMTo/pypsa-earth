@@ -224,9 +224,6 @@ def calculate_scale(gegis_load, file_path_temba, prediction_year):
 
     scale = merged_df.set_index('Country')['scale_country'].to_dict()
 
-    print("scale")
-    print(scale)
-
     return scale  
 
 
@@ -240,7 +237,7 @@ def build_demand_profiles(
     start_date,
     end_date,
     out_path,
-    file_path_temba, #fulmicotone
+    file_path_temba, 
     prediction_year
 ):
     """
@@ -291,7 +288,7 @@ def build_demand_profiles(
     # filter load for analysed countries
     gegis_load = gegis_load.loc[gegis_load.region_code.isin(countries)]
     
-    # fulmicotone
+    # scale factors from OSeMOSYS elec demand
     scale = calculate_scale(gegis_load, file_path_temba, prediction_year)
 
     if isinstance(scale, dict):
@@ -375,7 +372,6 @@ if __name__ == "__main__":
     start_date = snakemake.params.snapshots["start"]
     end_date = snakemake.params.snapshots["end"]
     out_path = snakemake.output[0]
-    #fulmicotone
     file_path_temba = r"C:\Users\Davide\pypsa-earth-project\pypsa-earth\data\temba\TEMBA_SSP1-26.xlsx" 
     prediction_year = snakemake.params.load_options.get("prediction_year")
 
@@ -389,6 +385,6 @@ if __name__ == "__main__":
         start_date,
         end_date,
         out_path,
-        file_path_temba, #fulmicotone
+        file_path_temba,
         prediction_year
     )
