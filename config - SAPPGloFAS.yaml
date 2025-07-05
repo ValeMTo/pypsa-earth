@@ -32,7 +32,7 @@ enable:
 custom_rules: [] # Default empty [] or link to custom rule file e.g. ["my_folder/my_rules.smk"] that add rules to Snakefile
 
 run:
-  name: "SAPP_prova_debug" # use this to keep track of runs with different settings
+  name: "" # use this to keep track of runs with different settings
   sector_name: "" # use this to keep track of sector scenario runs
   shared_cutouts: true # set to true to share the default cutout(s) across runs
   # Note: value false requires build_cutout to be enabled
@@ -316,7 +316,7 @@ renewable:
     GloFAS_ERA5: 
       methods: GloFAS #'GloFAS' for GloFAS-ERA5 methodology instead of ERA5 Runoff to calculate hydro profile, otherwise: false. NOTE: Volume_Mm3 and Dam_height_m needed for hydro_ppls
       GloFAS_ERA5_data: "data/river_discharge_in_the_last_24_hours_2013/data_version-4.0_consolidated.nc"
-      radius: 0.3 #radius for point series extraction (GloFAS), consider 0.1, 0.3, 0.5 as main choices
+      inflow_threshold: 5 #m3/s threshold for mean river for clustering (GloFAS)
       q_min: 0.2 #qmin fraction respect to qmax for RoR conversion (GloFAS)
       eff: 0.85 #mean efficiency value considered for inflow conversion in MW (GloFAS)
     hydrobasins_level: 6

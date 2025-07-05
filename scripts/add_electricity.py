@@ -710,7 +710,7 @@ def attach_hydro_GloFAS(n, costs, ppl, q_min, eff):
             p_min_pu=0.0,  # store
             efficiency_dispatch=costs.at["hydro", "efficiency"],
             efficiency_store=1.0,
-            cyclic_state_of_charge=True,
+            cyclic_state_of_charge=False,
             inflow=inflow_Glofas_sto_MW.loc[:, hydro.index],
         )
         
@@ -859,15 +859,15 @@ def attach_hydro(n, costs, ppl):
             max_hours=hydro_max_hours,
             capital_cost=(
                 costs.at["hydro", "capital_cost"]
-                if c.get("hydro_capital_cost")
-                else 0.0
+                #if c.get("hydro_capital_cost")
+                #else 0.0
             ),
             marginal_cost=costs.at["hydro", "marginal_cost"],
             p_max_pu=1.0,  # dispatch
             p_min_pu=0.0,  # store
             efficiency_dispatch=costs.at["hydro", "efficiency"],
             efficiency_store=0.0,
-            cyclic_state_of_charge=True,
+            cyclic_state_of_charge=False,
             inflow=inflow_t.loc[:, hydro.index],
         )
 
