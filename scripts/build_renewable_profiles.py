@@ -992,7 +992,7 @@ def build_hourly_inflow_series(
     print(f"All series for plants appended.")
 
     # Kariba fix
-    plants_to_modify = [7751, 7765]  # Gli ID delle due metà di Kariba
+    plants_to_modify = [7751, 7765]  # ID Kariba
     for plant_index in plants_to_modify:
         if plant_index in inflow_Glofas.plant.values:
             inflow_Glofas.loc[dict(plant=plant_index)] /= 2
