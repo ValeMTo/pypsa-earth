@@ -50,7 +50,7 @@ import atlite
 import geopandas as gpd
 import numpy as np
 import rasterio as rio
-from _helpers import configure_logging, create_logger
+from pypsa_earth.scripts._helpers import configure_logging, create_logger
 from rasterio.features import geometry_mask
 from rasterio.warp import transform_bounds
 
@@ -176,7 +176,7 @@ def unify_protected_shape_areas(inputs, natura_crs, out_logging):
 
 if __name__ == "__main__":
     if "snakemake" not in globals():
-        from _helpers import mock_snakemake
+        from pypsa_earth.scripts._helpers import mock_snakemake
 
         snakemake = mock_snakemake(
             "build_natura_raster", cutouts=["cutouts/africa-2013-era5.nc"]

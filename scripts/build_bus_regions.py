@@ -47,7 +47,7 @@ import os
 import geopandas as gpd
 import pandas as pd
 import pypsa
-from _helpers import REGION_COLS, configure_logging, create_logger
+from pypsa_earth.scripts._helpers import REGION_COLS, configure_logging, create_logger
 
 logger = create_logger(__name__)
 
@@ -148,7 +148,7 @@ def get_gadm_shape(
 
 if __name__ == "__main__":
     if "snakemake" not in globals():
-        from _helpers import mock_snakemake
+        from pypsa_earth.scripts._helpers import mock_snakemake
 
         snakemake = mock_snakemake("build_bus_regions")
 

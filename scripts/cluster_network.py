@@ -130,7 +130,7 @@ import linopy
 import numpy as np
 import pandas as pd
 import pypsa
-from _helpers import (
+from pypsa_earth.scripts._helpers import (
     REGION_COLS,
     configure_logging,
     create_logger,
@@ -619,7 +619,7 @@ def cluster_regions(busmaps, inputs, output):
 
 if __name__ == "__main__":
     if "snakemake" not in globals():
-        from _helpers import mock_snakemake
+        from pypsa_earth.scripts._helpers import mock_snakemake
 
         snakemake = mock_snakemake(
             "cluster_network", network="elec", simpl="", clusters="4"

@@ -23,7 +23,7 @@ import geopandas as gpd
 import numpy as np
 import pandas as pd
 import pypsa
-from _helpers import locate_bus, override_component_attrs, prepare_costs
+from pypsa_earth.scripts._helpers import locate_bus, override_component_attrs, prepare_costs
 
 logger = logging.getLogger(__name__)
 
@@ -195,7 +195,7 @@ def create_export_profile():
 if __name__ == "__main__":
     if "snakemake" not in globals():
 
-        from _helpers import mock_snakemake
+        from pypsa_earth.scripts._helpers import mock_snakemake
 
         snakemake = mock_snakemake(
             "add_export",

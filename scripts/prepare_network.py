@@ -65,8 +65,8 @@ import numpy as np
 import pandas as pd
 import pypsa
 import requests
-from _helpers import BASE_DIR, configure_logging, create_logger
-from add_electricity import load_costs, update_transmission_costs
+from pypsa_earth.scripts._helpers import BASE_DIR, configure_logging, create_logger
+from pypsa_earth.scripts.add_electricity import load_costs, update_transmission_costs
 
 idx = pd.IndexSlice
 
@@ -317,7 +317,7 @@ def set_line_nom_max(n, s_nom_max_set=np.inf, p_nom_max_set=np.inf):
 
 if __name__ == "__main__":
     if "snakemake" not in globals():
-        from _helpers import mock_snakemake
+        from pypsa_earth.scripts._helpers import mock_snakemake
 
         snakemake = mock_snakemake(
             "prepare_network",

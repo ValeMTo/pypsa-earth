@@ -11,11 +11,11 @@ import atlite
 import geopandas as gpd
 import pandas as pd
 import xarray as xr
-from _helpers import read_csv_nafix, to_csv_nafix
+from pypsa_earth.scripts._helpers import read_csv_nafix, to_csv_nafix
 
 if __name__ == "__main__":
     if "snakemake" not in globals():
-        from _helpers import mock_snakemake
+        from pypsa_earth.scripts._helpers import mock_snakemake
 
         snakemake = mock_snakemake(
             "build_clustered_population_layouts",

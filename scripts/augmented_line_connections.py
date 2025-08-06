@@ -34,8 +34,8 @@ import networkx as nx
 import numpy as np
 import pandas as pd
 import pypsa
-from _helpers import configure_logging, create_logger
-from add_electricity import load_costs
+from pypsa_earth.scripts._helpers import configure_logging, create_logger
+from pypsa_earth.scripts.add_electricity import load_costs
 from networkx.algorithms import complement
 from networkx.algorithms.connectivity.edge_augmentation import k_edge_augmentation
 from pypsa.geo import haversine_pts
@@ -52,7 +52,7 @@ def haversine(p):
 
 if __name__ == "__main__":
     if "snakemake" not in globals():
-        from _helpers import mock_snakemake
+        from pypsa_earth.scripts._helpers import mock_snakemake
 
         snakemake = mock_snakemake(
             "augmented_line_connections", network="elec", simpl="", clusters="4"

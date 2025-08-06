@@ -95,7 +95,7 @@ import pandas as pd
 import powerplantmatching as pm
 import pypsa
 import xarray as xr
-from _helpers import (
+from pypsa_earth.scripts._helpers import (
     apply_currency_conversion,
     build_currency_conversion_cache,
     configure_logging,
@@ -505,6 +505,7 @@ def attach_conventional_generators(
                 n.generators.loc[idx, attr] = values
 
 
+
 def attach_hydro(n, costs, ppl):
     if "hydro" not in snakemake.params.renewable:
         return
@@ -840,7 +841,7 @@ def add_nice_carrier_names(n, config):
 
 if __name__ == "__main__":
     if "snakemake" not in globals():
-        from _helpers import mock_snakemake
+        from pypsa_earth.scripts._helpers import mock_snakemake
 
         snakemake = mock_snakemake("add_electricity")
 

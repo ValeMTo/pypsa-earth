@@ -19,7 +19,7 @@ import numpy as np
 import pandas as pd
 import py7zr
 import requests
-from _helpers import BASE_DIR, aggregate_fuels, get_conv_factors
+from pypsa_earth.scripts._helpers import BASE_DIR, aggregate_fuels, get_conv_factors
 
 _logger = logging.getLogger(__name__)
 
@@ -352,7 +352,7 @@ def calc_sector(sector):
 
 if __name__ == "__main__":
     if "snakemake" not in globals():
-        from _helpers import mock_snakemake
+        from pypsa_earth.scripts._helpers import mock_snakemake
 
         snakemake = mock_snakemake(
             "build_base_energy_totals",

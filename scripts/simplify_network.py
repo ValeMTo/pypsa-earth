@@ -93,14 +93,14 @@ import numpy as np
 import pandas as pd
 import pypsa
 import scipy as sp
-from _helpers import (
+from pypsa_earth.scripts._helpers import (
     configure_logging,
     create_logger,
     update_config_dictionary,
     update_p_nom_max,
 )
-from add_electricity import load_costs
-from cluster_network import cluster_regions, clustering_for_n_clusters
+from pypsa_earth.scripts.add_electricity import load_costs
+from pypsa_earth.scripts.cluster_network import cluster_regions, clustering_for_n_clusters
 from pypsa.clustering.spatial import (
     aggregateoneport,
     busmap_by_stubs,
@@ -1009,7 +1009,7 @@ def nearest_shape(n, path_shapes, distance_crs):
 
 if __name__ == "__main__":
     if "snakemake" not in globals():
-        from _helpers import mock_snakemake
+        from pypsa_earth.scripts._helpers import mock_snakemake
 
         snakemake = mock_snakemake("simplify_network", simpl="")
 

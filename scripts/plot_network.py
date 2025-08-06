@@ -26,7 +26,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import pypsa
-from _helpers import (
+from pypsa_earth.scripts._helpers import (
     aggregate_costs,
     aggregate_p,
     configure_logging,
@@ -1071,7 +1071,7 @@ if __name__ == "__main__":
     if "snakemake" not in globals():
         import os
 
-        from _helpers import mock_snakemake
+        from pypsa_earth.scripts._helpers import mock_snakemake
 
         snakemake = mock_snakemake(
             "plot_network",

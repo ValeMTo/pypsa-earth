@@ -55,8 +55,8 @@ import os
 
 import pandas as pd
 import pypsa
-from _helpers import configure_logging
-from add_electricity import create_logger, load_costs, update_transmission_costs
+from pypsa_earth.scripts._helpers import configure_logging
+from pypsa_earth.scripts.add_electricity import create_logger, load_costs, update_transmission_costs
 
 idx = pd.IndexSlice
 
@@ -534,7 +534,7 @@ def to_csv(dfs, dir):
 
 if __name__ == "__main__":
     if "snakemake" not in globals():
-        from _helpers import mock_snakemake
+        from pypsa_earth.scripts._helpers import mock_snakemake
 
         snakemake = mock_snakemake(
             "make_summary",

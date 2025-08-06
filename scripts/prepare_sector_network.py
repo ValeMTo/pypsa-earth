@@ -15,7 +15,7 @@ import pypsa
 import pytz
 import ruamel.yaml
 import xarray as xr
-from _helpers import (
+from pypsa_earth.scripts._helpers import (
     BASE_DIR,
     create_dummy_data,
     create_network_topology,

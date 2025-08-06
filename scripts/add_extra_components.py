@@ -57,14 +57,14 @@ import os
 import numpy as np
 import pandas as pd
 import pypsa
-from _helpers import (
+from pypsa_earth.scripts._helpers import (
     configure_logging,
     create_logger,
     lossy_bidirectional_links,
     override_component_attrs,
     set_length_based_efficiency,
 )
-from add_electricity import (
+from pypsa_earth.scripts.add_electricity import (
     _add_missing_carriers_from_costs,
     add_nice_carrier_names,
     load_costs,
@@ -279,7 +279,7 @@ def attach_hydrogen_pipelines(n, costs, config, transmission_efficiency):
 
 if __name__ == "__main__":
     if "snakemake" not in globals():
-        from _helpers import mock_snakemake
+        from pypsa_earth.scripts._helpers import mock_snakemake
 
         snakemake = mock_snakemake("add_extra_components", simpl="", clusters=10)
 

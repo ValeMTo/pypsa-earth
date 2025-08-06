@@ -202,8 +202,8 @@ import numpy as np
 import pandas as pd
 import progressbar as pgb
 import xarray as xr
-from _helpers import BASE_DIR, configure_logging, create_logger
-from add_electricity import load_powerplants
+from pypsa_earth.scripts._helpers import BASE_DIR, configure_logging, create_logger
+from pypsa_earth.scripts.add_electricity import load_powerplants
 from dask.distributed import Client
 from pypsa.geo import haversine
 from shapely.geometry import LineString, Point, box
@@ -484,7 +484,7 @@ def rescale_hydro(plants, runoff, normalize_using_yearly, normalization_year):
 
 if __name__ == "__main__":
     if "snakemake" not in globals():
-        from _helpers import mock_snakemake
+        from pypsa_earth.scripts._helpers import mock_snakemake
 
         snakemake = mock_snakemake("build_renewable_profiles", technology="hydro")
     configure_logging(snakemake)

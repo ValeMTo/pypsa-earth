@@ -50,7 +50,7 @@ import pandas as pd
 import pypsa
 import scipy.sparse as sparse
 import xarray as xr
-from _helpers import (
+from pypsa_earth.scripts._helpers import (
     BASE_DIR,
     configure_logging,
     create_logger,
@@ -298,7 +298,7 @@ def build_demand_profiles(
 
 if __name__ == "__main__":
     if "snakemake" not in globals():
-        from _helpers import mock_snakemake
+        from pypsa_earth.scripts._helpers import mock_snakemake
 
         snakemake = mock_snakemake("build_demand_profiles")
 

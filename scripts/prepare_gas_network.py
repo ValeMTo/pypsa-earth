@@ -19,7 +19,7 @@ import geopandas as gpd
 import matplotlib.colors as colors
 import matplotlib.pyplot as plt
 import pandas as pd
-from _helpers import (
+from pypsa_earth.scripts._helpers import (
     BASE_DIR,
     content_retrieve,
     progress_retrieve,
@@ -36,7 +36,7 @@ from shapely.validation import make_valid
 
 if __name__ == "__main__":
     if "snakemake" not in globals():
-        from _helpers import mock_snakemake
+        from pypsa_earth.scripts._helpers import mock_snakemake
 
         snakemake = mock_snakemake(
             "prepare_gas_network",

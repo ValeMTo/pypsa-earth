@@ -108,7 +108,7 @@ import pandas as pd
 import powerplantmatching as pm
 import pypsa
 import yaml
-from _helpers import (
+from pypsa_earth.scripts._helpers import (
     configure_logging,
     create_logger,
     locate_bus,
@@ -295,7 +295,7 @@ def replace_natural_gas_technology(df: pd.DataFrame):
 
 if __name__ == "__main__":
     if "snakemake" not in globals():
-        from _helpers import mock_snakemake
+        from pypsa_earth.scripts._helpers import mock_snakemake
 
         snakemake = mock_snakemake("build_powerplants")
 

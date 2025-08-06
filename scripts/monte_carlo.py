@@ -78,7 +78,7 @@ from _helpers import configure_logging, create_logger
 from pyDOE2 import lhs
 from scipy.stats import beta, gamma, lognorm, norm, qmc, triang
 from sklearn.preprocessing import MinMaxScaler
-from solve_network import *
+from pypsa_earth.scripts.solve_network import *
 
 logger = create_logger(__name__)
 sns.set(style="whitegrid")
@@ -350,7 +350,7 @@ def validate_parameters(
 
 if __name__ == "__main__":
     if "snakemake" not in globals():
-        from _helpers import mock_snakemake
+        from pypsa_earth.scripts._helpers import mock_snakemake
 
         snakemake = mock_snakemake(
             "monte_carlo",

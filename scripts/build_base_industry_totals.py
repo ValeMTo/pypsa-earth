@@ -15,8 +15,8 @@ from pathlib import Path
 
 import country_converter as coco
 import pandas as pd
-from _helpers import aggregate_fuels, get_conv_factors, read_csv_nafix
-from prepare_sector_network import get
+from pypsa_earth.scripts._helpers import aggregate_fuels, get_conv_factors, read_csv_nafix
+from pypsa_earth.scripts.prepare_sector_network import get
 
 # def calc_industry_base(df):
 
@@ -89,7 +89,7 @@ def create_industry_base_totals(df):
 
 if __name__ == "__main__":
     if "snakemake" not in globals():
-        from _helpers import mock_snakemake
+        from pypsa_earth.scripts._helpers import mock_snakemake
 
         snakemake = mock_snakemake(
             "build_base_industry_totals",

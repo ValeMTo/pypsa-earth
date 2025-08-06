@@ -17,7 +17,7 @@ import numpy as np
 import pandas as pd
 import py7zr
 import requests
-from _helpers import BASE_DIR, read_csv_nafix, three_2_two_digits_country
+from pypsa_earth.scripts._helpers import BASE_DIR, read_csv_nafix, three_2_two_digits_country
 
 _logger = logging.getLogger(__name__)
 
@@ -46,7 +46,7 @@ def fill_country_data(df, country, default_key="DEFAULT", label="", logger=_logg
 
 if __name__ == "__main__":
     if "snakemake" not in globals():
-        from _helpers import mock_snakemake
+        from pypsa_earth.scripts._helpers import mock_snakemake
 
         snakemake = mock_snakemake(
             "prepare_energy_totals",

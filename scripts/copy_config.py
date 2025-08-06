@@ -5,7 +5,7 @@
 import os
 from shutil import copy
 
-from _helpers import BASE_DIR
+from pypsa_earth.scripts._helpers import BASE_DIR
 
 files_to_copy = {
     os.path.join(BASE_DIR, "./config.yaml"): "config.yaml",
@@ -18,7 +18,7 @@ files_to_copy = {
 
 if __name__ == "__main__":
     if "snakemake" not in globals():
-        from _helpers import mock_snakemake
+        from pypsa_earth.scripts._helpers import mock_snakemake
 
         snakemake = mock_snakemake("copy_config")
 

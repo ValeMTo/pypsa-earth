@@ -14,7 +14,7 @@ from itertools import product
 
 import geopandas as gpd
 import pandas as pd
-from _helpers import locate_bus, three_2_two_digits_country
+from pypsa_earth.scripts._helpers import locate_bus, three_2_two_digits_country
 from shapely.geometry import Point
 
 logger = logging.getLogger(__name__)
@@ -94,7 +94,7 @@ def match_technology(df):
 
 if __name__ == "__main__":
     if "snakemake" not in globals():
-        from _helpers import mock_snakemake
+        from pypsa_earth.scripts._helpers import mock_snakemake
 
         snakemake = mock_snakemake(
             "build_industrial_distribution_key",

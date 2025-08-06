@@ -13,7 +13,7 @@ import os
 from itertools import product
 
 import pandas as pd
-from _helpers import BASE_DIR, mock_snakemake, read_csv_nafix
+from pypsa_earth.scripts._helpers import BASE_DIR, mock_snakemake, read_csv_nafix
 
 _logger = logging.getLogger(__name__)
 

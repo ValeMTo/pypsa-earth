@@ -89,7 +89,7 @@ import geopandas as gpd
 import googledrivedownloader as gdd
 import pandas as pd
 import yaml
-from _helpers import (
+from pypsa_earth.scripts._helpers import (
     BASE_DIR,
     configure_logging,
     create_country_list,
@@ -911,7 +911,7 @@ def retrieve_databundle(
 if __name__ == "__main__":
     if "snakemake" not in globals():
 
-        from _helpers import mock_snakemake
+        from pypsa_earth.scripts._helpers import mock_snakemake
 
         snakemake = mock_snakemake("retrieve_databundle_light")
 

@@ -31,7 +31,7 @@ import numpy as np
 import pandas as pd
 import pypsa
 import xarray as xr
-from _helpers import create_logger, mock_snakemake, to_csv_nafix
+from pypsa_earth.scripts._helpers import create_logger, mock_snakemake, to_csv_nafix
 from build_test_configs import create_test_config
 from shapely.validation import make_valid
 
@@ -71,7 +71,7 @@ def generate_scenario_by_country(
         out_dir : str (optional)
             Output directory where output configuration files are executed
     """
-    from _helpers import create_country_list, three_2_two_digits_country
+    from pypsa_earth.scripts._helpers import create_country_list, three_2_two_digits_country
 
     clean_country_list = create_country_list(country_list)
 

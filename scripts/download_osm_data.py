@@ -30,7 +30,7 @@ import os
 import shutil
 from pathlib import Path
 
-from _helpers import BASE_DIR, configure_logging, create_logger, read_osm_config
+from pypsa_earth.scripts._helpers import BASE_DIR, configure_logging, create_logger, read_osm_config
 from earth_osm import eo
 
 logger = create_logger(__name__)
@@ -92,7 +92,7 @@ def convert_iso_to_geofk(
 
 if __name__ == "__main__":
     if "snakemake" not in globals():
-        from _helpers import mock_snakemake
+        from pypsa_earth.scripts._helpers import mock_snakemake
 
         snakemake = mock_snakemake("download_osm_data")
     configure_logging(snakemake)

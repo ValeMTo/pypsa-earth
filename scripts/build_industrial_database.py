@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 import pycountry
 import requests
-from _helpers import content_retrieve
+from pypsa_earth.scripts._helpers import content_retrieve
 from geopy.geocoders import Nominatim
 
 
@@ -493,7 +493,7 @@ def create_paper_df():
 
 if __name__ == "__main__":
     if "snakemake" not in globals():
-        from _helpers import mock_snakemake
+        from pypsa_earth.scripts._helpers import mock_snakemake
 
         snakemake = mock_snakemake(
             "build_industrial_database",

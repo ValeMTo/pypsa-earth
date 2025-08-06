@@ -24,7 +24,7 @@ import xarray as xr
 #     update_config_from_wildcards,
 # )
 # from add_electricity import sanitize_carriers
-from prepare_sector_network import define_spatial, prepare_costs  # , cluster_heat_buses
+from pypsa_earth.scripts.prepare_sector_network import define_spatial, prepare_costs  # , cluster_heat_buses
 
 logger = logging.getLogger(__name__)
 cc = coco.CountryConverter()
@@ -579,7 +579,7 @@ def add_heating_capacities_installed_before_baseyear(
 
 if __name__ == "__main__":
     if "snakemake" not in globals():
-        from _helpers import mock_snakemake
+        from pypsa_earth.scripts._helpers import mock_snakemake
 
         snakemake = mock_snakemake(
             "add_existing_baseyear",

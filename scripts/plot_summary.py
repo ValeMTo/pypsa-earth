@@ -20,7 +20,7 @@ import os
 
 import matplotlib.pyplot as plt
 import pandas as pd
-from _helpers import configure_logging, create_logger
+from pypsa_earth.scripts._helpers import configure_logging, create_logger
 
 logger = create_logger(__name__)
 
@@ -217,7 +217,7 @@ def plot_energy(infn, snmk, fn=None):
 
 if __name__ == "__main__":
     if "snakemake" not in globals():
-        from _helpers import mock_snakemake
+        from pypsa_earth.scripts._helpers import mock_snakemake
 
         snakemake = mock_snakemake(
             "plot_summary",

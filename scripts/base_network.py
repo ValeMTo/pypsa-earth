@@ -65,7 +65,7 @@ import pypsa
 import scipy as sp
 import shapely.prepared
 import shapely.wkt
-from _helpers import configure_logging, create_logger, read_csv_nafix
+from pypsa_earth.scripts._helpers import configure_logging, create_logger, read_csv_nafix
 from shapely.ops import unary_union
 
 logger = create_logger(__name__)
@@ -539,7 +539,7 @@ def base_network(
 
 if __name__ == "__main__":
     if "snakemake" not in globals():
-        from _helpers import mock_snakemake
+        from pypsa_earth.scripts._helpers import mock_snakemake
 
         snakemake = mock_snakemake("base_network")
 

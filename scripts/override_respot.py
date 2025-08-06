@@ -12,7 +12,7 @@ import pandas as pd
 import pypsa
 import pytz
 import xarray as xr
-from _helpers import mock_snakemake, override_component_attrs
+from pypsa_earth.scripts._helpers import mock_snakemake, override_component_attrs
 
 
 def override_values(tech, year, dr):
