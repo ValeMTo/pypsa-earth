@@ -140,298 +140,298 @@ rule plot_all_summaries:
             ext=["png", "pdf"],
         ),
 
+if config['enable'].get("from_demand_profiles", None):
+    if config["enable"].get("retrieve_databundle", True):
 
-if config["enable"].get("retrieve_databundle", True):
+        bundles_to_download = get_best_bundles_in_snakemake(config)
 
-    bundles_to_download = get_best_bundles_in_snakemake(config)
+        rule retrieve_databundle_light:
+            params:
+                bundles_to_download=bundles_to_download,
+                hydrobasins_level=config["renewable"]["hydro"]["hydrobasins_level"],
+            output:  #expand(directory('{file}') if isdir('{file}') else '{file}', file=datafiles)
+                expand(
+                    "{file}", file=datafiles_retrivedatabundle(config, bundles_to_download)
+                ),
+                directory("data/landcover"),
+            log:
+                "logs/" + RDIR + "retrieve_databundle.log",
+            benchmark:
+                "benchmarks/" + RDIR + "retrieve_databundle_light"
+            script:
+                "scripts/retrieve_databundle_light.py"
 
-    rule retrieve_databundle_light:
+
+    if config["enable"].get("download_osm_data", True):
+
+        rule download_osm_data:
+            params:
+                countries=config["countries"],
+            output:
+                cables="resources/" + RDIR + "osm/raw/all_raw_cables.geojson",
+                generators="resources/" + RDIR + "osm/raw/all_raw_generators.geojson",
+                generators_csv="resources/" + RDIR + "osm/raw/all_raw_generators.csv",
+                lines="resources/" + RDIR + "osm/raw/all_raw_lines.geojson",
+                substations="resources/" + RDIR + "osm/raw/all_raw_substations.geojson",
+            log:
+                "logs/" + RDIR + "download_osm_data.log",
+            benchmark:
+                "benchmarks/" + RDIR + "download_osm_data"
+            script:
+                "scripts/download_osm_data.py"
+
+
+    rule clean_osm_data:
         params:
-            bundles_to_download=bundles_to_download,
-            hydrobasins_level=config["renewable"]["hydro"]["hydrobasins_level"],
-        output:  #expand(directory('{file}') if isdir('{file}') else '{file}', file=datafiles)
-            expand(
-                "{file}", file=datafiles_retrivedatabundle(config, bundles_to_download)
-            ),
-            directory("data/landcover"),
-        log:
-            "logs/" + RDIR + "retrieve_databundle.log",
-        benchmark:
-            "benchmarks/" + RDIR + "retrieve_databundle_light"
-        script:
-            "scripts/retrieve_databundle_light.py"
-
-
-if config["enable"].get("download_osm_data", True):
-
-    rule download_osm_data:
-        params:
-            countries=config["countries"],
-        output:
+            crs=config["crs"],
+            clean_osm_data_options=config["clean_osm_data_options"],
+        input:
             cables="resources/" + RDIR + "osm/raw/all_raw_cables.geojson",
             generators="resources/" + RDIR + "osm/raw/all_raw_generators.geojson",
-            generators_csv="resources/" + RDIR + "osm/raw/all_raw_generators.csv",
             lines="resources/" + RDIR + "osm/raw/all_raw_lines.geojson",
             substations="resources/" + RDIR + "osm/raw/all_raw_substations.geojson",
+            country_shapes="resources/" + RDIR + "shapes/country_shapes.geojson",
+            offshore_shapes="resources/" + RDIR + "shapes/offshore_shapes.geojson",
+            africa_shape="resources/" + RDIR + "shapes/africa_shape.geojson",
+        output:
+            generators="resources/" + RDIR + "osm/clean/all_clean_generators.geojson",
+            generators_csv="resources/" + RDIR + "osm/clean/all_clean_generators.csv",
+            lines="resources/" + RDIR + "osm/clean/all_clean_lines.geojson",
+            substations="resources/" + RDIR + "osm/clean/all_clean_substations.geojson",
         log:
-            "logs/" + RDIR + "download_osm_data.log",
+            "logs/" + RDIR + "clean_osm_data.log",
         benchmark:
-            "benchmarks/" + RDIR + "download_osm_data"
+            "benchmarks/" + RDIR + "clean_osm_data"
         script:
-            "scripts/download_osm_data.py"
+            "scripts/clean_osm_data.py"
 
 
-rule clean_osm_data:
-    params:
-        crs=config["crs"],
-        clean_osm_data_options=config["clean_osm_data_options"],
-    input:
-        cables="resources/" + RDIR + "osm/raw/all_raw_cables.geojson",
-        generators="resources/" + RDIR + "osm/raw/all_raw_generators.geojson",
-        lines="resources/" + RDIR + "osm/raw/all_raw_lines.geojson",
-        substations="resources/" + RDIR + "osm/raw/all_raw_substations.geojson",
-        country_shapes="resources/" + RDIR + "shapes/country_shapes.geojson",
-        offshore_shapes="resources/" + RDIR + "shapes/offshore_shapes.geojson",
-        africa_shape="resources/" + RDIR + "shapes/africa_shape.geojson",
-    output:
-        generators="resources/" + RDIR + "osm/clean/all_clean_generators.geojson",
-        generators_csv="resources/" + RDIR + "osm/clean/all_clean_generators.csv",
-        lines="resources/" + RDIR + "osm/clean/all_clean_lines.geojson",
-        substations="resources/" + RDIR + "osm/clean/all_clean_substations.geojson",
-    log:
-        "logs/" + RDIR + "clean_osm_data.log",
-    benchmark:
-        "benchmarks/" + RDIR + "clean_osm_data"
-    script:
-        "scripts/clean_osm_data.py"
-
-
-rule build_osm_network:
-    params:
-        build_osm_network=config.get("build_osm_network", {}),
-        countries=config["countries"],
-        crs=config["crs"],
-    input:
-        generators="resources/" + RDIR + "osm/clean/all_clean_generators.geojson",
-        lines="resources/" + RDIR + "osm/clean/all_clean_lines.geojson",
-        substations="resources/" + RDIR + "osm/clean/all_clean_substations.geojson",
-        country_shapes="resources/" + RDIR + "shapes/country_shapes.geojson",
-    output:
-        lines="resources/" + RDIR + "base_network/all_lines_build_network.csv",
-        converters="resources/" + RDIR + "base_network/all_converters_build_network.csv",
-        transformers="resources/"
-        + RDIR
-        + "base_network/all_transformers_build_network.csv",
-        substations="resources/" + RDIR + "base_network/all_buses_build_network.csv",
-    log:
-        "logs/" + RDIR + "build_osm_network.log",
-    benchmark:
-        "benchmarks/" + RDIR + "build_osm_network"
-    script:
-        "scripts/build_osm_network.py"
-
-
-rule build_shapes:
-    params:
-        build_shape_options=config["build_shape_options"],
-        crs=config["crs"],
-        countries=config["countries"],
-        subregion=config["subregion"],
-    input:
-        # naturalearth='data/bundle/naturalearth/ne_10m_admin_0_countries.shp',
-        # eez='data/bundle/eez/World_EEZ_v8_2014.shp',
-        # nuts3='data/bundle/NUTS_2013_60M_SH/data/NUTS_RG_60M_2013.shp',
-        # nuts3pop='data/bundle/nama_10r_3popgdp.tsv.gz',
-        # nuts3gdp='data/bundle/nama_10r_3gdp.tsv.gz',
-        eez="data/eez/eez_v11.gpkg",
-    output:
-        country_shapes="resources/" + RDIR + "shapes/country_shapes.geojson",
-        offshore_shapes="resources/" + RDIR + "shapes/offshore_shapes.geojson",
-        africa_shape="resources/" + RDIR + "shapes/africa_shape.geojson",
-        gadm_shapes="resources/" + RDIR + "shapes/gadm_shapes.geojson",
-        subregion_shapes="resources/" + RDIR + "shapes/subregion_shapes.geojson",
-    log:
-        "logs/" + RDIR + "build_shapes.log",
-    benchmark:
-        "benchmarks/" + RDIR + "build_shapes"
-    threads: 1
-    resources:
-        mem_mb=3096,
-    script:
-        "scripts/build_shapes.py"
-
-
-rule base_network:
-    params:
-        voltages=config["electricity"]["voltages"],
-        transformers=config["transformers"],
-        snapshots=config["snapshots"],
-        links=config["links"],
-        lines=config["lines"],
-        hvdc_as_lines=config["electricity"]["hvdc_as_lines"],
-        countries=config["countries"],
-        base_network=config["base_network"],
-    input:
-        osm_buses="resources/" + RDIR + "base_network/all_buses_build_network.csv",
-        osm_lines="resources/" + RDIR + "base_network/all_lines_build_network.csv",
-        osm_converters="resources/"
-        + RDIR
-        + "base_network/all_converters_build_network.csv",
-        osm_transformers="resources/"
-        + RDIR
-        + "base_network/all_transformers_build_network.csv",
-        country_shapes="resources/" + RDIR + "shapes/country_shapes.geojson",
-        offshore_shapes="resources/" + RDIR + "shapes/offshore_shapes.geojson",
-    output:
-        "networks/" + RDIR + "base.nc",
-    log:
-        "logs/" + RDIR + "base_network.log",
-    benchmark:
-        "benchmarks/" + RDIR + "base_network"
-    threads: 1
-    resources:
-        mem_mb=500,
-    script:
-        "scripts/base_network.py"
-
-
-rule build_bus_regions:
-    params:
-        alternative_clustering=config["cluster_options"]["alternative_clustering"],
-        crs=config["crs"],
-        countries=config["countries"],
-    input:
-        country_shapes="resources/" + RDIR + "shapes/country_shapes.geojson",
-        offshore_shapes="resources/" + RDIR + "shapes/offshore_shapes.geojson",
-        base_network="networks/" + RDIR + "base.nc",
-        #gadm_shapes="resources/" + RDIR + "shapes/MAR2.geojson",
-        #using this line instead of the following will test updated gadm shapes for MA.
-        #To use: downlaod file from the google drive and place it in resources/" + RDIR + "shapes/
-        #Link: https://drive.google.com/drive/u/1/folders/1dkW1wKBWvSY4i-XEuQFFBj242p0VdUlM
-        gadm_shapes="resources/" + RDIR + "shapes/gadm_shapes.geojson",
-    output:
-        regions_onshore="resources/" + RDIR + "bus_regions/regions_onshore.geojson",
-        regions_offshore="resources/" + RDIR + "bus_regions/regions_offshore.geojson",
-    log:
-        "logs/" + RDIR + "build_bus_regions.log",
-    benchmark:
-        "benchmarks/" + RDIR + "build_bus_regions"
-    threads: 1
-    resources:
-        mem_mb=1000,
-    script:
-        "scripts/build_bus_regions.py"
-
-
-def terminate_if_cutout_exists(config=config):
-    """
-    Check if any of the requested cutout files exist.
-    If that's the case, terminate execution to avoid data loss.
-    """
-    config_cutouts = [
-        d_value["cutout"] for tc, d_value in config["renewable"].items()
-    ] + list(config["atlite"]["cutouts"].keys())
-
-    for ct in set(config_cutouts):
-        cutout_fl = "cutouts/" + CDIR + ct + ".nc"
-        if os.path.exists(cutout_fl):
-            raise Exception(
-                "An option `build_cutout` is enabled, while a cutout file '"
-                + cutout_fl
-                + "' still exists and risks to be overwritten. If this is an intended behavior, please move or delete this file and re-run the rule. Otherwise, just disable the `build_cutout` and `retrieve_cutout` rule in the config file."
-            )
-
-
-if config["enable"].get("build_cutout", False):
-    terminate_if_cutout_exists(config)
-
-    rule build_cutout:
+    rule build_osm_network:
         params:
-            snapshots=config["snapshots"],
-            cutouts=config["atlite"]["cutouts"],
+            build_osm_network=config.get("build_osm_network", {}),
+            countries=config["countries"],
+            crs=config["crs"],
         input:
-            onshore_shapes="resources/" + RDIR + "shapes/country_shapes.geojson",
+            generators="resources/" + RDIR + "osm/clean/all_clean_generators.geojson",
+            lines="resources/" + RDIR + "osm/clean/all_clean_lines.geojson",
+            substations="resources/" + RDIR + "osm/clean/all_clean_substations.geojson",
+            country_shapes="resources/" + RDIR + "shapes/country_shapes.geojson",
+        output:
+            lines="resources/" + RDIR + "base_network/all_lines_build_network.csv",
+            converters="resources/" + RDIR + "base_network/all_converters_build_network.csv",
+            transformers="resources/"
+            + RDIR
+            + "base_network/all_transformers_build_network.csv",
+            substations="resources/" + RDIR + "base_network/all_buses_build_network.csv",
+        log:
+            "logs/" + RDIR + "build_osm_network.log",
+        benchmark:
+            "benchmarks/" + RDIR + "build_osm_network"
+        script:
+            "scripts/build_osm_network.py"
+
+
+    rule build_shapes:
+        params:
+            build_shape_options=config["build_shape_options"],
+            crs=config["crs"],
+            countries=config["countries"],
+            subregion=config["subregion"],
+        input:
+            # naturalearth='data/bundle/naturalearth/ne_10m_admin_0_countries.shp',
+            # eez='data/bundle/eez/World_EEZ_v8_2014.shp',
+            # nuts3='data/bundle/NUTS_2013_60M_SH/data/NUTS_RG_60M_2013.shp',
+            # nuts3pop='data/bundle/nama_10r_3popgdp.tsv.gz',
+            # nuts3gdp='data/bundle/nama_10r_3gdp.tsv.gz',
+            eez="data/eez/eez_v11.gpkg",
+        output:
+            country_shapes="resources/" + RDIR + "shapes/country_shapes.geojson",
+            offshore_shapes="resources/" + RDIR + "shapes/offshore_shapes.geojson",
+            africa_shape="resources/" + RDIR + "shapes/africa_shape.geojson",
+            gadm_shapes="resources/" + RDIR + "shapes/gadm_shapes.geojson",
+            subregion_shapes="resources/" + RDIR + "shapes/subregion_shapes.geojson",
+        log:
+            "logs/" + RDIR + "build_shapes.log",
+        benchmark:
+            "benchmarks/" + RDIR + "build_shapes"
+        threads: 1
+        resources:
+            mem_mb=3096,
+        script:
+            "scripts/build_shapes.py"
+
+
+    rule base_network:
+        params:
+            voltages=config["electricity"]["voltages"],
+            transformers=config["transformers"],
+            snapshots=config["snapshots"],
+            links=config["links"],
+            lines=config["lines"],
+            hvdc_as_lines=config["electricity"]["hvdc_as_lines"],
+            countries=config["countries"],
+            base_network=config["base_network"],
+        input:
+            osm_buses="resources/" + RDIR + "base_network/all_buses_build_network.csv",
+            osm_lines="resources/" + RDIR + "base_network/all_lines_build_network.csv",
+            osm_converters="resources/"
+            + RDIR
+            + "base_network/all_converters_build_network.csv",
+            osm_transformers="resources/"
+            + RDIR
+            + "base_network/all_transformers_build_network.csv",
+            country_shapes="resources/" + RDIR + "shapes/country_shapes.geojson",
             offshore_shapes="resources/" + RDIR + "shapes/offshore_shapes.geojson",
         output:
-            "cutouts/" + CDIR + "{cutout}.nc",
+            "networks/" + RDIR + "base.nc",
         log:
-            "logs/" + RDIR + "build_cutout/{cutout}.log",
+            "logs/" + RDIR + "base_network.log",
         benchmark:
-            "benchmarks/" + RDIR + "build_cutout_{cutout}"
-        threads: ATLITE_NPROCESSES
+            "benchmarks/" + RDIR + "base_network"
+        threads: 1
         resources:
-            mem_mb=ATLITE_NPROCESSES * 1000,
+            mem_mb=500,
         script:
-            "scripts/build_cutout.py"
+            "scripts/base_network.py"
 
 
-if config["enable"].get("build_natura_raster", False):
-
-    rule build_natura_raster:
+    rule build_bus_regions:
         params:
-            area_crs=config["crs"]["area_crs"],
+            alternative_clustering=config["cluster_options"]["alternative_clustering"],
+            crs=config["crs"],
+            countries=config["countries"],
         input:
-            shapefiles_land="data/landcover",
-            cutouts=expand(
+            country_shapes="resources/" + RDIR + "shapes/country_shapes.geojson",
+            offshore_shapes="resources/" + RDIR + "shapes/offshore_shapes.geojson",
+            base_network="networks/" + RDIR + "base.nc",
+            #gadm_shapes="resources/" + RDIR + "shapes/MAR2.geojson",
+            #using this line instead of the following will test updated gadm shapes for MA.
+            #To use: downlaod file from the google drive and place it in resources/" + RDIR + "shapes/
+            #Link: https://drive.google.com/drive/u/1/folders/1dkW1wKBWvSY4i-XEuQFFBj242p0VdUlM
+            gadm_shapes="resources/" + RDIR + "shapes/gadm_shapes.geojson",
+        output:
+            regions_onshore="resources/" + RDIR + "bus_regions/regions_onshore.geojson",
+            regions_offshore="resources/" + RDIR + "bus_regions/regions_offshore.geojson",
+        log:
+            "logs/" + RDIR + "build_bus_regions.log",
+        benchmark:
+            "benchmarks/" + RDIR + "build_bus_regions"
+        threads: 1
+        resources:
+            mem_mb=1000,
+        script:
+            "scripts/build_bus_regions.py"
+
+
+    def terminate_if_cutout_exists(config=config):
+        """
+        Check if any of the requested cutout files exist.
+        If that's the case, terminate execution to avoid data loss.
+        """
+        config_cutouts = [
+            d_value["cutout"] for tc, d_value in config["renewable"].items()
+        ] + list(config["atlite"]["cutouts"].keys())
+
+        for ct in set(config_cutouts):
+            cutout_fl = "cutouts/" + CDIR + ct + ".nc"
+            if os.path.exists(cutout_fl):
+                raise Exception(
+                    "An option `build_cutout` is enabled, while a cutout file '"
+                    + cutout_fl
+                    + "' still exists and risks to be overwritten. If this is an intended behavior, please move or delete this file and re-run the rule. Otherwise, just disable the `build_cutout` and `retrieve_cutout` rule in the config file."
+                )
+
+
+    if config["enable"].get("build_cutout", False):
+        terminate_if_cutout_exists(config)
+
+        rule build_cutout:
+            params:
+                snapshots=config["snapshots"],
+                cutouts=config["atlite"]["cutouts"],
+            input:
+                onshore_shapes="resources/" + RDIR + "shapes/country_shapes.geojson",
+                offshore_shapes="resources/" + RDIR + "shapes/offshore_shapes.geojson",
+            output:
                 "cutouts/" + CDIR + "{cutout}.nc",
-                cutout=[c["cutout"] for _, c in config["renewable"].items()],
-            ),
-        output:
-            "resources/" + RDIR + "natura.tiff",
-        log:
-            "logs/" + RDIR + "build_natura_raster.log",
-        benchmark:
-            "benchmarks/" + RDIR + "build_natura_raster"
-        script:
-            "scripts/build_natura_raster.py"
+            log:
+                "logs/" + RDIR + "build_cutout/{cutout}.log",
+            benchmark:
+                "benchmarks/" + RDIR + "build_cutout_{cutout}"
+            threads: ATLITE_NPROCESSES
+            resources:
+                mem_mb=ATLITE_NPROCESSES * 1000,
+            script:
+                "scripts/build_cutout.py"
 
 
-if not config["enable"].get("build_natura_raster", False):
+    if config["enable"].get("build_natura_raster", False):
 
-    rule copy_defaultnatura_tiff:
-        input:
-            "data/natura/natura.tiff",
-        output:
-            "resources/" + RDIR + "natura.tiff",
-        run:
-            import shutil
-
-            shutil.copyfile(input[0], output[0])
-
-
-country_data = config["costs"].get("country_specific_data", "")
-countries = config.get("countries", [])
-
-if country_data and countries == [country_data]:
-    cost_directory = f"{country_data}/"
-elif country_data:
-    cost_directory = f"{country_data}/"
-    warnings.warn(
-        f"'country_specific_data' is set to '{country_data}', but 'countries' is {countries}. Make sure the '{country_data}' directory exists and that this is intentional."
-    )
-else:
-    cost_directory = ""
+        rule build_natura_raster:
+            params:
+                area_crs=config["crs"]["area_crs"],
+            input:
+                shapefiles_land="data/landcover",
+                cutouts=expand(
+                    "cutouts/" + CDIR + "{cutout}.nc",
+                    cutout=[c["cutout"] for _, c in config["renewable"].items()],
+                ),
+            output:
+                "resources/" + RDIR + "natura.tiff",
+            log:
+                "logs/" + RDIR + "build_natura_raster.log",
+            benchmark:
+                "benchmarks/" + RDIR + "build_natura_raster"
+            script:
+                "scripts/build_natura_raster.py"
 
 
-if config["enable"].get("retrieve_cost_data", True):
+    if not config["enable"].get("build_natura_raster", False):
 
-    rule retrieve_cost_data:
-        params:
-            version=config["costs"]["technology_data_version"],
-        input:
-            HTTP.remote(
-                f"raw.githubusercontent.com/PyPSA/technology-data/{config['costs']['technology_data_version']}/outputs/{cost_directory}"
-                + "costs_{year}.csv",
-                keep_local=True,
-            ),
-        output:
-            "resources/" + RDIR + "costs_{year}.csv",
-        log:
-            "logs/" + RDIR + "retrieve_cost_data_{year}.log",
-        resources:
-            mem_mb=5000,
-        run:
-            move(input[0], output[0])
+        rule copy_defaultnatura_tiff:
+            input:
+                "data/natura/natura.tiff",
+            output:
+                "resources/" + RDIR + "natura.tiff",
+            run:
+                import shutil
+
+                shutil.copyfile(input[0], output[0])
+
+
+    country_data = config["costs"].get("country_specific_data", "")
+    countries = config.get("countries", [])
+
+    if country_data and countries == [country_data]:
+        cost_directory = f"{country_data}/"
+    elif country_data:
+        cost_directory = f"{country_data}/"
+        warnings.warn(
+            f"'country_specific_data' is set to '{country_data}', but 'countries' is {countries}. Make sure the '{country_data}' directory exists and that this is intentional."
+        )
+    else:
+        cost_directory = ""
+
+
+    if config["enable"].get("retrieve_cost_data", True):
+
+        rule retrieve_cost_data:
+            params:
+                version=config["costs"]["technology_data_version"],
+            input:
+                HTTP.remote(
+                    f"raw.githubusercontent.com/PyPSA/technology-data/{config['costs']['technology_data_version']}/outputs/{cost_directory}"
+                    + "costs_{year}.csv",
+                    keep_local=True,
+                ),
+            output:
+                "resources/" + RDIR + "costs_{year}.csv",
+            log:
+                "logs/" + RDIR + "retrieve_cost_data_{year}.log",
+            resources:
+                mem_mb=5000,
+            run:
+                move(input[0], output[0])
 
 
 rule build_demand_profiles:

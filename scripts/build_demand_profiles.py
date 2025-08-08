@@ -187,6 +187,8 @@ def build_demand_profiles(
     start_date,
     end_date,
     out_path,
+    demand, 
+    convergence_factor,
 ):
     """
     Create csv file of electric demand time series.
@@ -233,6 +235,10 @@ def build_demand_profiles(
 
     # filter load for analysed countries
     gegis_load = gegis_load.loc[gegis_load.region_code.isin(countries)]
+
+    print(f"Load data loaded from {load_paths} for {len(gegis_load)} snapshots.")
+    print(f"gegis_load shape: {gegis_load.shape}, columns: {gegis_load.columns}")
+    print(gegis_load.head())
 
     if isinstance(scale, dict):
         logger.info(f"Using custom scaling factor for load data.")
@@ -291,6 +297,14 @@ def build_demand_profiles(
     start_date = pd.to_datetime(start_date)
     end_date = pd.to_datetime(end_date) - pd.Timedelta(hours=1)
     demand_profiles = demand_profiles.loc[start_date:end_date]
+
+    print(f"Demand profiles created for {len(demand_profiles)} snapshots, from {start_date} to {end_date}.")
+
+    if demand is not None:
+        total_demand = sum(demand_profiles.sum(axis=1))
+        delta_diff = max(demand / total_demand, 0)
+        print(f"Total demand before scaling: {total_demand}, after scaling: {total_demand * delta_diff}, considering the demand {demand} given.")
+        demand_profiles *= (delta_diff * convergence_factor)
     demand_profiles.to_csv(out_path, header=True)
 
     logger.info(f"Demand_profiles csv file created for the corresponding snapshots.")
@@ -315,6 +329,8 @@ if __name__ == "__main__":
     start_date = snakemake.params.snapshots["start"]
     end_date = snakemake.params.snapshots["end"]
     out_path = snakemake.output[0]
+    demand = 2725894.128185551
+    convergence_factor = 1.0
 
     build_demand_profiles(
         n,
@@ -326,4 +342,6 @@ if __name__ == "__main__":
         start_date,
         end_date,
         out_path,
+        demand,
+        convergence_factor,
     )
