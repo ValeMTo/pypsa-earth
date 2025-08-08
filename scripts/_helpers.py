@@ -569,6 +569,11 @@ def mock_snakemake(
         from pypsa.definitions.structures import Dict  # from pypsa version v0.31
     from snakemake.script import Snakemake
 
+    import inspect
+    print("Called mock_snakemake from:", inspect.stack()[1].filename)
+    print("ROOT_DIR =", root_dir)
+    print("submodule_dir =", submodule_dir)
+
     script_dir = Path(__file__).parent.resolve()
     if root_dir is None:
         root_dir = script_dir.parent

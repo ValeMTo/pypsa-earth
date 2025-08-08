@@ -298,13 +298,11 @@ def build_demand_profiles(
     end_date = pd.to_datetime(end_date) - pd.Timedelta(hours=1)
     demand_profiles = demand_profiles.loc[start_date:end_date]
 
-    print(f"Demand profiles created for {len(demand_profiles)} snapshots, from {start_date} to {end_date}.")
-
     if demand is not None:
         total_demand = sum(demand_profiles.sum(axis=1))
         delta_diff = max(demand / total_demand, 0)
-        print(f"Total demand before scaling: {total_demand}, after scaling: {total_demand * delta_diff}, considering the demand {demand} given.")
         demand_profiles *= (delta_diff * convergence_factor)
+        print(f"Total demand before scaling: {total_demand}, after scaling: {total_demand * delta_diff * convergence_factor}, considering the demand {demand} given.")
     demand_profiles.to_csv(out_path, header=True)
 
     logger.info(f"Demand_profiles csv file created for the corresponding snapshots.")
@@ -329,8 +327,8 @@ if __name__ == "__main__":
     start_date = snakemake.params.snapshots["start"]
     end_date = snakemake.params.snapshots["end"]
     out_path = snakemake.output[0]
-    demand = 2725894.128185551
-    convergence_factor = 1.0
+    demand = snakemake.params.demand
+    convergence_factor = snakemake.params.convergence_factor
 
     build_demand_profiles(
         n,

@@ -13,15 +13,15 @@ from shutil import copyfile, move
 
 from snakemake.remote.HTTP import RemoteProvider as HTTPRemoteProvider
 
-from _helpers import (
+from pypsa_earth.scripts._helpers import (
     create_country_list,
     get_last_commit_message,
     check_config_version,
     copy_default_files,
     BASE_DIR,
 )
-from build_demand_profiles import get_load_paths_gegis
-from retrieve_databundle_light import (
+from pypsa_earth.scripts.build_demand_profiles import get_load_paths_gegis
+from pypsa_earth.scripts.retrieve_databundle_light import (
     datafiles_retrivedatabundle,
     get_best_bundles_in_snakemake,
 )
@@ -45,6 +45,10 @@ config.update({"git_commit": get_last_commit_message(".")})
 
 # convert country list according to the desired region
 config["countries"] = create_country_list(config["countries"])
+
+# The exchange among countries is set to zero by default.
+config["demand"] = config.get("demand")
+config['convergence_factor'] = 1.0 if config.get("convergence_factor") is None else config.get("convergence_factor")
 
 # create a list of iteration steps, required to solve the experimental design
 # each value is used as wildcard input e.g. solution_{unc}
@@ -140,7 +144,7 @@ rule plot_all_summaries:
             ext=["png", "pdf"],
         ),
 
-if config['enable'].get("from_demand_profiles", None):
+if config['enable'].get("not_from_demand_profiles", True):
     if config["enable"].get("retrieve_databundle", True):
 
         bundles_to_download = get_best_bundles_in_snakemake(config)
@@ -412,7 +416,7 @@ if config['enable'].get("from_demand_profiles", None):
     else:
         cost_directory = ""
 
-
+if config['enable'].get("not_from_demand_profiles", True):
     if config["enable"].get("retrieve_cost_data", True):
 
         rule retrieve_cost_data:
@@ -439,6 +443,8 @@ rule build_demand_profiles:
         snapshots=config["snapshots"],
         load_options=config["load_options"],
         countries=config["countries"],
+        demand=config["demand"],
+        convergence_factor=config["convergence_factor"],
     input:
         base_network="networks/" + RDIR + "base.nc",
         regions="resources/" + RDIR + "bus_regions/regions_onshore.geojson",
@@ -460,73 +466,74 @@ rule build_demand_profiles:
     script:
         "scripts/build_demand_profiles.py"
 
+if config['enable'].get("not_from_demand_profiles", False):
 
-rule build_renewable_profiles:
-    params:
-        crs=config["crs"],
-        renewable=config["renewable"],
-        countries=config["countries"],
-        alternative_clustering=config["cluster_options"]["alternative_clustering"],
-    input:
-        natura="resources/" + RDIR + "natura.tiff",
-        copernicus="data/copernicus/PROBAV_LC100_global_v3.0.1_2019-nrt_Discrete-Classification-map_EPSG-4326.tif",
-        gebco="data/gebco/GEBCO_2021_TID.nc",
-        country_shapes="resources/" + RDIR + "shapes/country_shapes.geojson",
-        offshore_shapes="resources/" + RDIR + "shapes/offshore_shapes.geojson",
-        hydro_capacities="data/hydro_capacities.csv",
-        eia_hydro_generation="data/eia_hydro_annual_generation.csv",
-        powerplants="resources/" + RDIR + "powerplants.csv",
-        regions=lambda w: (
-            "resources/" + RDIR + "bus_regions/regions_onshore.geojson"
-            if w.technology in ("onwind", "solar", "hydro", "csp")
-            else "resources/" + RDIR + "bus_regions/regions_offshore.geojson"
-        ),
-        cutout=lambda w: "cutouts/"
-        + CDIR
-        + config["renewable"][w.technology]["cutout"]
-        + ".nc",
-    output:
-        profile="resources/" + RDIR + "renewable_profiles/profile_{technology}.nc",
-    log:
-        "logs/" + RDIR + "build_renewable_profile_{technology}.log",
-    benchmark:
-        "benchmarks/" + RDIR + "build_renewable_profiles_{technology}"
-    threads: ATLITE_NPROCESSES
-    resources:
-        mem_mb=ATLITE_NPROCESSES * 5000,
-    script:
-        "scripts/build_renewable_profiles.py"
+    rule build_renewable_profiles:
+        params:
+            crs=config["crs"],
+            renewable=config["renewable"],
+            countries=config["countries"],
+            alternative_clustering=config["cluster_options"]["alternative_clustering"],
+        input:
+            natura="resources/" + RDIR + "natura.tiff",
+            copernicus="data/copernicus/PROBAV_LC100_global_v3.0.1_2019-nrt_Discrete-Classification-map_EPSG-4326.tif",
+            gebco="data/gebco/GEBCO_2021_TID.nc",
+            country_shapes="resources/" + RDIR + "shapes/country_shapes.geojson",
+            offshore_shapes="resources/" + RDIR + "shapes/offshore_shapes.geojson",
+            hydro_capacities="data/hydro_capacities.csv",
+            eia_hydro_generation="data/eia_hydro_annual_generation.csv",
+            powerplants="resources/" + RDIR + "powerplants.csv",
+            regions=lambda w: (
+                "resources/" + RDIR + "bus_regions/regions_onshore.geojson"
+                if w.technology in ("onwind", "solar", "hydro", "csp")
+                else "resources/" + RDIR + "bus_regions/regions_offshore.geojson"
+            ),
+            cutout=lambda w: "cutouts/"
+            + CDIR
+            + config["renewable"][w.technology]["cutout"]
+            + ".nc",
+        output:
+            profile="resources/" + RDIR + "renewable_profiles/profile_{technology}.nc",
+        log:
+            "logs/" + RDIR + "build_renewable_profile_{technology}.log",
+        benchmark:
+            "benchmarks/" + RDIR + "build_renewable_profiles_{technology}"
+        threads: ATLITE_NPROCESSES
+        resources:
+            mem_mb=ATLITE_NPROCESSES * 5000,
+        script:
+            "scripts/build_renewable_profiles.py"
 
 
-rule build_powerplants:
-    params:
-        geo_crs=config["crs"]["geo_crs"],
-        countries=config["countries"],
-        gadm_layer_id=config["build_shape_options"]["gadm_layer_id"],
-        alternative_clustering=config["cluster_options"]["alternative_clustering"],
-        powerplants_filter=config["electricity"]["powerplants_filter"],
-    input:
-        base_network="networks/" + RDIR + "base.nc",
-        pm_config="configs/powerplantmatching_config.yaml",
-        custom_powerplants="data/custom_powerplants.csv",
-        osm_powerplants="resources/" + RDIR + "osm/clean/all_clean_generators.csv",
-        #gadm_shapes="resources/" + RDIR + "shapes/MAR2.geojson",
-        #using this line instead of the following will test updated gadm shapes for MA.
-        #To use: downlaod file from the google drive and place it in resources/" + RDIR + "shapes/
-        #Link: https://drive.google.com/drive/u/1/folders/1dkW1wKBWvSY4i-XEuQFFBj242p0VdUlM
-        gadm_shapes="resources/" + RDIR + "shapes/gadm_shapes.geojson",
-    output:
-        powerplants="resources/" + RDIR + "powerplants.csv",
-        powerplants_osm2pm="resources/" + RDIR + "powerplants_osm2pm.csv",
-    log:
-        "logs/" + RDIR + "build_powerplants.log",
-    benchmark:
-        "benchmarks/" + RDIR + "build_powerplants"
-    threads: 1
-    resources:
-        mem_mb=500,
-    script:
-        "scripts/build_powerplants.py"
+    rule build_powerplants:
+        params:
+            geo_crs=config["crs"]["geo_crs"],
+            countries=config["countries"],
+            gadm_layer_id=config["build_shape_options"]["gadm_layer_id"],
+            alternative_clustering=config["cluster_options"]["alternative_clustering"],
+            powerplants_filter=config["electricity"]["powerplants_filter"],
+        input:
+            base_network="networks/" + RDIR + "base.nc",
+            pm_config="configs/powerplantmatching_config.yaml",
+            custom_powerplants="data/custom_powerplants.csv",
+            osm_powerplants="resources/" + RDIR + "osm/clean/all_clean_generators.csv",
+            #gadm_shapes="resources/" + RDIR + "shapes/MAR2.geojson",
+            #using this line instead of the following will test updated gadm shapes for MA.
+            #To use: downlaod file from the google drive and place it in resources/" + RDIR + "shapes/
+            #Link: https://drive.google.com/drive/u/1/folders/1dkW1wKBWvSY4i-XEuQFFBj242p0VdUlM
+            gadm_shapes="resources/" + RDIR + "shapes/gadm_shapes.geojson",
+        output:
+            powerplants="resources/" + RDIR + "powerplants.csv",
+            powerplants_osm2pm="resources/" + RDIR + "powerplants_osm2pm.csv",
+        log:
+            "logs/" + RDIR + "build_powerplants.log",
+        benchmark:
+            "benchmarks/" + RDIR + "build_powerplants"
+        threads: 1
+        resources:
+            mem_mb=500,
+        script:
+            "scripts/build_powerplants.py"
 
 
 rule add_electricity:
