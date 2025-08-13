@@ -13,15 +13,15 @@ from shutil import copyfile, move
 
 from snakemake.remote.HTTP import RemoteProvider as HTTPRemoteProvider
 
-from pypsa_earth.scripts._helpers import (
+from _helpers import (
     create_country_list,
     get_last_commit_message,
     check_config_version,
     copy_default_files,
     BASE_DIR,
 )
-from pypsa_earth.scripts.build_demand_profiles import get_load_paths_gegis
-from pypsa_earth.scripts.retrieve_databundle_light import (
+from build_demand_profiles import get_load_paths_gegis
+from retrieve_databundle_light import (
     datafiles_retrivedatabundle,
     get_best_bundles_in_snakemake,
 )
