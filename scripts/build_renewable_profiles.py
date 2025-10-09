@@ -485,9 +485,6 @@ def rescale_hydro(plants, runoff, normalize_using_yearly, normalization_year):
 
     return runoff
 
-import numpy as np
-import pandas as pd
-
 def add_qmax_turb(hydro_ppls, efficiency):
     """
     Adds the columns 'qmax_turb' and 'qmin_turb' to the hydro_ppls DataFrame,
@@ -525,12 +522,6 @@ def add_qmax_turb(hydro_ppls, efficiency):
     hydro_ppls['qmin_turb'] = hydro_ppls['qmax_turb'] * 0.2
 
     return hydro_ppls
-
-import numpy as np
-import pandas as pd
-import geopandas as gpd
-from shapely.ops import unary_union
-from scipy.spatial import cKDTree
 
 def filter_valid_river_points(
     river_ERA5LF, regions, threshold, all_hydro_ppls, grid_step=0.05, buffer_tolerance=0.5
@@ -759,9 +750,6 @@ def segment_all_clusters(gdf, mean_tolerance, grid_step, tolerance_factor):
 
     segmented_gdf = pd.concat(segmented_gdfs, ignore_index=True)
     return segmented_gdf
-
-import numpy as np
-import pandas as pd
 
 def match_plants_to_segments(plants_with_storage, segmented_gdf, grid_step=0.05, tolerance_factor=1.2):
     """
@@ -1103,7 +1091,6 @@ if __name__ == "__main__":
         ppls = load_powerplants(snakemake.input.powerplants)
 
         all_hydro_ppls = ppls[ppls.carrier == "hydro"]
-        print(all_hydro_ppls.columns)
         
         # get hydro profile calculation method
         GloFAS_ERA5 = None
@@ -1174,11 +1161,6 @@ if __name__ == "__main__":
             else:
                 # otherwise perform the calculations
                 inflow = correction_factor * func(capacity_factor=True, **resource)
-                
-                #Kariba fix
-                #for plant_id in ['7751', '7765']:
-                  #  if plant_id in inflow.coords['plant']:
-                   #     inflow.loc[dict(plant=plant_id)] /= 2
 
                 if "clip_min_inflow" in config:
                     inflow = inflow.where(inflow >= config["clip_min_inflow"], 0)
